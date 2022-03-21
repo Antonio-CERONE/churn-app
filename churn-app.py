@@ -6,11 +6,8 @@ import base64
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
-
-
 
 st.write("""
 # Churn Prediction App
@@ -21,11 +18,9 @@ This app predicts the probability of a customer churning using Telco Customer da
 customer churn means the customer does not make another purchase after a period of time. 
 """)
 
-
-
 df_selected = pd.read_csv("telco_churn.csv")
-df_selected_all = df_selected[['gender', 'Partner', 'Dependents', 'PhoneService', 
-                                     'tenure', 'MonthlyCharges', 'Churn']].copy()
+df_selected_all = df_selected[['Churn','gender', 'Partner', 'Dependents', 'PhoneService','tenure', 'MonthlyCharges', ]].copy()
+
 def filedownload(df):
     csv = df.to_csv(index=False)
     b64 = base64.b64encode(csv.encode()).decode()  # strings <-> bytes conversions
@@ -35,57 +30,45 @@ def filedownload(df):
 st.set_option('deprecation.showPyplotGlobalUse', False)
 st.markdown(filedownload(df_selected_all), unsafe_allow_html=True)
 
-
 uploaded_file = st.sidebar.file_uploader("Upload your input CSV file", type=["csv"])
 if uploaded_file is not None:
     input_df = pd.read_csv(uploaded_file)
 else:
+    
     def user_input_features():
         gender = st.sidebar.selectbox('gender',('Male','Female'))
         PaymentMethod = st.sidebar.selectbox('PaymentMethod',('Bank transfer (automatic)', 'Credit card (automatic)', 'Mailed check', 'Electronic check'))
+        
         MonthlyCharges = st.sidebar.slider('Monthly Charges', 18.0,118.0, 18.0)
         tenure = st.sidebar.slider('tenure', 0.0,72.0, 0.0)
 
         data = {'gender':[gender], 
                 'PaymentMethod':[PaymentMethod], 
                 'MonthlyCharges':[MonthlyCharges], 
-                'tenure':[tenure],}
-        
-        features = pd.DataFrame(data)
+                'tenure':[tenure]}
+        features = pd.DataFrame(data)        
         return features
     input_df = user_input_features()
 
-
-
 churn_raw = pd.read_csv('telco_churn.csv')
-
-
-
-
 churn_raw.fillna(0, inplace=True)
 churn = churn_raw.drop(columns=['Churn'])
 df = pd.concat([input_df,churn],axis=0)
-
-
-
 
 encode = ['gender','PaymentMethod']
 for col in encode:
     dummy = pd.get_dummies(df[col], prefix=col)
     df = pd.concat([df,dummy], axis=1)
     del df[col]
-df = df[:1] # Selects only the first row (the user input data)
+
+# Selects only the first row (the user input data)
+df = df[:1] 
 df.fillna(0, inplace=True)
 
-
 features = ['MonthlyCharges', 'tenure', 'gender_Female', 'gender_Male',
-       'PaymentMethod_Bank transfer (automatic)',
-       'PaymentMethod_Credit card (automatic)',
-       'PaymentMethod_Electronic check', 'PaymentMethod_Mailed check']
-
+            'PaymentMethod_Bank transfer (automatic)','PaymentMethod_Credit card (automatic)',
+            'PaymentMethod_Electronic check', 'PaymentMethod_Mailed check']
 df = df[features]
-
-
 
 # Displays the user input features
 st.subheader('User Input features')
@@ -103,8 +86,8 @@ load_clf = pickle.load(open('churn_clf.pkl', 'rb'))
 prediction = load_clf.predict(df)
 prediction_proba = load_clf.predict_proba(df)
 
-
-st.subheader('Prediction')
+# Write the output
+# st.subheader('Prediction')
 churn_labels = np.array(['No','Yes'])
 st.write(churn_labels[prediction])
 
