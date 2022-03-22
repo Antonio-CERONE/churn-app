@@ -10,6 +10,7 @@ This app predicts the probability of a customer churning using Telco Customer da
 
 ---
 
-[Curl] (https://antonio-cerone-churn-app.herokuapp.com/) to API deployed with HEROKU and powered by STREAMLIT
+API deployed with HEROKU and powered by STREAMLIT
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://antonio-cerone-churn-app.herokuapp.com/)
 
 ---
